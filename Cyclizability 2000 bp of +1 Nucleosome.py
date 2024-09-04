@@ -29,14 +29,10 @@ df_TSS["Chrom"] = df_TSS["Chromosome"]
 df_nucleosome = pd.read_csv("sd01.csv")
 
 
-# Initialize an empty dictionary to store chromosomes
 chromosomes = {}
 fasta_file = "GCA_000002945.2_ASM294v2_genomic.fna"
 
-# Define the keys for the first three chromosomes and the mitochondria
 chromosome_keys = ['1', '2', '3', 'mitochondria']
-
-# Parse the FASTA file and store each chromosome sequence in the dictionary
 for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
     if idx < len(chromosome_keys):
         key = chromosome_keys[idx]
