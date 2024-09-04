@@ -18,15 +18,6 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 Storing the sacCer2 genome 
 '''
 def load_fasta_files_to_dict(directory):
-    """
-    Load all FASTA files from a directory into a dictionary containing only sequences.
-    
-    Parameters:
-    - directory: The path to the directory containing FASTA files.
-    
-    Returns:
-    - A dictionary where keys are filenames (without extensions) and values are sequences as strings.
-    """
     fasta_dict = {}
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
