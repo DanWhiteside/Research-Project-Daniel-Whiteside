@@ -1,3 +1,4 @@
+
 #%%
 import random
 import re
@@ -13,7 +14,7 @@ from scipy.stats import linregress
 from matplotlib.gridspec import GridSpec
 import seaborn as sns
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['KMP_DUPLICATE_LIB_OK']='True' #Stops 
 #%%
 def generate_random_dna_sequence(length):
     bases = ['A', 'T', 'C', 'G']
@@ -372,27 +373,24 @@ def plot_cyclability(values, nuc_num, name):
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.title(f'Cyclability Around Nucleosome {nuc_num} {name}')
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200)
     
     plt.show()
 
 def plot_cyclability2(values1, values2, title=None):
-    # Generate x-values for both sequences (same for both sequences)
+    #Generates x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
-    
-    # Ensure that both sequences have the same length
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6))
     
-    # Plot both sequences with different colors
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     # Customize plot
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200)
     plt.ylim(-0.27, -0.1)
     plt.legend()  # Add a legend
 
@@ -404,36 +402,31 @@ def plot_cyclability2(values1, values2, title=None):
 
 def plot_cyclability1000(values, nuc_num, name):
     x_values = np.linspace(-975, 975, len(values))  
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6))
     plt.plot(x_values, values)
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.title(f'Cyclability Around Nucleosome {nuc_num} {name}')
-    plt.xlim(-1000, 1000)  # Set x-axis limits
+    plt.xlim(-1000, 1000) 
     plt.ylim(-0.27, -0.1)
     plt.show()
 
 def plot_cyclability2_1000(values1, values2, title=None):
-    # Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-975, 975, len(values1))
     
-    # Ensure that both sequences have the same length
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
     plt.figure(figsize=(12, 6))  # Create figure with specified size
     
-    # Plot both sequences with different colors
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
-    # Customize plot
-    plt.xlim(-1000, 1000)  # Set x-axis limits
+    plt.xlim(-1000, 1000)
     plt.ylim(-0.27, -0.1)
     plt.legend()  # Add a legend
 
-    # Add title if provided
     if title is not None:
         plt.title(title)
     
@@ -602,7 +595,9 @@ plot_sliding_window_average(Nucleosome1, 1, "Pombe")
 
 #%%
 '''
-Altering the NucX_sequencer code for CERIVISIAE
+Altering the NucX_sequencer code for CERIVISIAE +1
+
+This was done before I had gained access to the full map of nucleosome positions in cerevisiae
 '''
 def cer_sequencer(dataframe, chromosomes, Nuc_Num):
     if Nuc_Num == 1:
@@ -747,7 +742,7 @@ codon_table = {
     'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'
 }
 
-# Create a reverse dictionary mapping amino acids to their codons
+#Dictionary maps amino acids to codons
 amino_acid_to_codons = {}
 for codon, amino_acid in codon_table.items():
     if amino_acid not in amino_acid_to_codons:
@@ -758,7 +753,6 @@ for codon, amino_acid in codon_table.items():
 
 
 def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction):
-    # Create a copy of the original dictionary to ensure it is being updated
     updated_chromosomes = chromosomes.copy()
     
     for idx in range(len(gene_left)):
@@ -788,7 +782,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction):
                     Sequence = str(compliment_Nuclesome)
                 
 
-                # Doing the mutation
+                #Doing the mutation
                 mutated_sequence = []
                 for j in range(0, len(Sequence), 3):
                     codon = Sequence[j:j+3]
@@ -805,7 +799,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction):
                             mutated_sequence.append(codon)
                             continue
 
-                        # If there is more than one codon for the amino acid, select a different one
+                        #Selecting different amino acid when available
                         if len(possible_codons) > 1:
                             new_codon = random.choice([c for c in possible_codons if c != codon])
                         else:
@@ -816,14 +810,14 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction):
                         mutated_sequence.append(codon)
 
                 mutated_sequence = "".join(mutated_sequence)
-                # Reverse complement if necessary
+                #Reverse complement if necessary
                 if direction[idx] == "-":
                     x = Seq(mutated_sequence)
                     mutated_sequence = str(x.reverse_complement())
                 
                 
 
-                # Building replacement chromosome
+                #Building replacement chromosome
                 chrome_up = chromosome[:int(gene_left[idx])]
                 chrome_down = chromosome[int(gene_right[idx]):]
                 updated_chromosome = chrome_up + mutated_sequence + chrome_down
@@ -881,7 +875,7 @@ cer_MNuc1_cyc = run_model(cer_MNuc1_seq2)
 #%%
 indices_different_length = [i for i, sublist in enumerate(cer_MNuc1_cyc) if len(sublist) != len(cer_MNuc1_cyc[0])]
 
-# Print the indices of sublists with different lengths
+#Print the indices of sublists with different lengths
 if indices_different_length:
     print("Indices of sublists with different lengths:", indices_different_length)
 else:
