@@ -21,7 +21,6 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 #%%
 ''' Combining DNA mnase results '''
-# Replace 'your_file.bedgraph' with the path to your BEDGRAPH file
 df1 = pd.read_csv('GSM1694819_S2_cells_genomic_DNA_MNase_rep1.bedGraph', sep='\t', header=None, names=['chrom', 'start', 'end', 'value'])
 df2 = pd.read_csv('GSM1694819_S2_cells_genomic_DNA_MNase_rep1.bedGraph', sep='\t', header=None, names=['chrom', 'start', 'end', 'value'])
 
@@ -32,41 +31,24 @@ df_combined = df_combined.groupby(['chrom', 'start', 'end']).mean().reset_index(
 
 #%%
 def find_nucleosome_centers(df_combined, height=2, distance=200, prominence=1):
-    """
-    Finds nucleosome centers by detecting peaks in MNase data for each chromosome.
-    
-    Parameters:
-    - df_combined: DataFrame with columns ['chrom', 'start', 'end', 'value']
-    - height: float, minimum height of peaks to detect
-    - distance: int, minimum distance between peaks
-    - prominence: float, minimum prominence of peaks
-    
-    Returns:
-    - DataFrame containing nucleosome centers with columns: chrom, start, end, value, center
-    """
-    # List to store results for each chromosome
     all_peaks = []
 
-    # Get unique chromosomes
     chroms = df_combined['chrom'].unique()
     print(chroms)
     
     for chrom in chroms:
-        # Filter data for the current chromosome
+    
         df_chrom = df_combined[df_combined['chrom'] == chrom]
         
-        # Apply find_peaks to detect peaks
+    
         peaks, _ = find_peaks(df_chrom['value'], height=height, distance=distance, prominence=prominence)
         
-        # Extract peak data
         df_chrom_peaks = df_chrom.iloc[peaks].copy()  # Use .copy() to avoid SettingWithCopyWarning
         df_chrom_peaks['center'] = (df_chrom_peaks['start'] + df_chrom_peaks['end']) / 2
         df_chrom_peaks["Length"] = (df_chrom_peaks['end'] - df_chrom_peaks['start'])
-        
-        # Append to the list of results
         all_peaks.append(df_chrom_peaks)
     
-    # Combine all chromosome-specific peak DataFrames
+    #Combining all chromosome-specific peak DataFrames
     nucleosome_centers = pd.concat(all_peaks, ignore_index=True)
     
     return nucleosome_centers
@@ -117,15 +99,6 @@ dm3_strand = df_flyChrT["strand"]
 '''Loading Genome'''
 
 def load_fasta_files_to_dict(directory):
-    """
-    Load all FASTA files from a directory into a dictionary containing only sequences.
-    
-    Parameters:
-    - directory: The path to the directory containing FASTA files.
-    
-    Returns:
-    - A dictionary where keys are filenames (without extensions) and values are sequences as strings.
-    """
     fasta_dict = {}
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
@@ -233,7 +206,7 @@ N_NucleosomeSequence = Nucleosome_N_Seq(1, df_flyChrT, dm3_genome)
 
 #%%
 '''
-Loading Model and Functions
+Loading Model and Functions from previous code
 '''
 def generate_random_dna_sequence(length):
     bases = ['A', 'T', 'C', 'G']
@@ -260,9 +233,7 @@ def run_model(seqs): #Allows it to take a list of sequences as input
     #num_subseqs = seq_length - subseq_length + 1
     #the variables above enabled checking of functionality 
     
-    # Initialize an array to accumulate the cyclability values
     accumulated_cyclability = []
-    # Extract the model number from the option string
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
     # Load the model
@@ -305,24 +276,19 @@ def plot_cyclability(values, nuc_num, name):
 def plot_cyclability2(values1, values2, title=None):
     # Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
-    
-    # Ensure that both sequences have the same length
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
     plt.figure(figsize=(12, 6))  # Create figure with specified size
-    
-    # Plot both sequences with different colors
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
-    # Customize plot
+
     plt.xlim(-200, 200)  # Set x-axis limits
     plt.ylim(-0.26, -0.1)
     plt.legend()  # Add a legend
 
-    # Add title if provided
     if title is not None:
         plt.title(title)
     
@@ -362,7 +328,6 @@ codon_table = {
     'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'
 }
 
-# Create a reverse dictionary mapping amino acids to their codons
 amino_acid_to_codons = {}
 for codon, amino_acid in codon_table.items():
     if amino_acid not in amino_acid_to_codons:
@@ -374,7 +339,6 @@ for codon, amino_acid in codon_table.items():
 
 def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction, 
                   codon_table, amino_acid_to_codons):
-    # Create a copy of the original dictionary to ensure it is being updated
     updated_chromosomes = chromosomes.copy()
     
     for idx in range(len(gene_left)):
@@ -385,7 +349,6 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
             #current_chr = conversion_dict[current_chr]
             #print(f"Processing chromosome: {current_chr}")
             
-            # Directly use the current_chr as key since it's now in format 'chrI', 'chrII', etc.
             chromosome = updated_chromosomes.get(current_chr)
             if chromosome is None:
                 print(f"Chromosome {current_chr} not found in the genome.")
