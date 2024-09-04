@@ -1,5 +1,4 @@
 '''Amino Acid Research'''
-''' Ploting Stuff '''
 import random
 import re
 from tensorflow import keras
@@ -280,8 +279,6 @@ def calculate_weighted_flexibility_and_store_raw(codon_cyclabilities_raw, codon_
 
     return weighted_amino_acid_flexibilities, raw_weighted_values
 
-# Example usage:
-# Assuming codon_cyclabilities_raw and codon_percentages are defined
 weighted_flexibilities_Pombe, raw_weighted_Pombe = calculate_weighted_flexibility_and_store_raw(codon_cyclabilities_raw, Pombe_weights)
 weighted_flexibilities_Cerevisiae, raw_weighted_Cerevisiae = calculate_weighted_flexibility_and_store_raw(codon_cyclabilities_raw, Cerevisiae_weights)
 
