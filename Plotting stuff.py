@@ -248,7 +248,7 @@ distribution_at_position(pombeN5_Raw, 176)
 
 #%%
 '''T test differences between Pombe and Cerevisiae '''
-def T_test_at_position(lists_condition1, lists_condition2, position):
+def t_test_at_position(lists_condition1, lists_condition2, position):
     #Getting values at the specified position
     values1 = [lst[position] for lst in lists_condition1 if position < len(lst)]
     values2 = [lst[position] for lst in lists_condition2 if position < len(lst)]
@@ -256,7 +256,7 @@ def T_test_at_position(lists_condition1, lists_condition2, position):
     values2 = np.array(values2)
     
     #Performing the t-test
-    t_statistic, p_value = stats.t(values1, values2)
+    t_statistic, p_value = stats.ttest_ind(values1, values2)
     
     return t_statistic, p_value
 
@@ -265,7 +265,7 @@ def T_test_at_position(lists_condition1, lists_condition2, position):
 #%%
 '''1: Pombe Plus 1 nucleosome difference from codon randomisation by position'''
 #Centre
-t1_centre, p1_centre = U_test_at_position(pombeN1_Raw, pombeM1_Raw, 176)
+t1_centre, p1_centre = t_test_at_position(pombeN1_Raw, pombeM1_Raw, 176)
 print(t1_centre, p1_centre)
 '''P = 0.03 so significantly different at the centre'''
 
@@ -292,17 +292,17 @@ print(p1_Nright)
 
 '''2: Pombe Plus 5 nucleosome difference from codon randomisation by position'''
 # Centre
-t2_centre, p2_centre = U_test_at_position(pombeN5_Raw, pombeM5_Raw, 176)
+t2_centre, p2_centre = t_test_at_position(pombeN5_Raw, pombeM5_Raw, 176)
 print(t2_centre, p2_centre)
 '''P = 0.002 so significantly different at the centre'''
 
 # Far left (-150)
-t2_Fleft, p2_Fleft = U_test_at_position(pombeN5_Raw, pombeM5_Raw, 26)
+t2_Fleft, p2_Fleft = t_test_at_position(pombeN5_Raw, pombeM5_Raw, 26)
 print(t2_Fleft, p2_Fleft)
 '''P = ~ 0.03 so significantly different at the far left'''
 
 # Far right (+150)
-t2_Fright, p2_Fright = U_test_at_position(pombeN5_Raw, pombeM5_Raw, 326)
+t2_Fright, p2_Fright = t_test_at_position(pombeN5_Raw, pombeM5_Raw, 326)
 print(t2_Fright, p2_Fright)
 '''P = ~ 6 e-7 so significantly different at the far right'''
 
@@ -343,38 +343,6 @@ t3_Nright, p3_Nright = t_test_at_position(pombeN1_Raw, pombeN5_Raw, 251)
 print(p3_Nright)
 '''P = ~ 0.8 so not significantly different'''
 
-
-
-
-'''
-To be done once Cerevisiae is ready; will need to get GPT to change t3 and p3
-'''
-
-# '''4: Cerevisiae PLus 1 Nucleosome difference from codon randomisation by position'''
-# # Centre
-# t3_centre, p3_centre = t_test_at_position(cerN1_Raw, cerM1_Raw, 176)
-# print(t3_centre, p3_centre)
-# '''P = 0.03 so significantly different at the centre'''
-
-# # Far left (-150)
-# t3_Fleft, p3_Fleft = t_test_at_position(cerN1_Raw, cerM1_Raw, 26)
-# print(t3_Fleft, p3_Fleft)
-# '''P = ~ 0.9 so near identical at the far left'''
-
-# # Far right (+150)
-# t3_Fright, p3_Fright = t_test_at_position(cerN1_Raw, cerM1_Raw, 326)
-# print(t3_Fright, p3_Fright)
-# '''P = ~ 0.3 so not significantly different but still a little'''
-
-# # Near left (-75)
-# t3_Nleft, p3_Nleft = t_test_at_position(cerN1_Raw, cerM1_Raw, 101)
-# print(t3_Nleft, p3_Nleft)
-# '''P = ~ 0.6 so not significantly different at near left'''
-
-# # Near right (+75)
-# t3_Nright, p3_Nright = t_test_at_position(cerN1_Raw, cerM1_Raw, 251)
-# print(p3_Nright)
-# '''P = ~ 0.5 e-9 so very much significantly different but still a little'''
 
 #%%
 '''Ploting data with errorbar region'''
