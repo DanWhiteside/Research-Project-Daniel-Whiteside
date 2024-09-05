@@ -22,11 +22,8 @@ def load_fasta_files_to_dict(directory):
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
             filepath = os.path.join(directory, filename)
-            # Read the FASTA file
             for record in SeqIO.parse(filepath, "fasta"):
-                # Use the filename (without extension) as the key
                 key = os.path.splitext(filename)[0]
-                # Store only the sequence as a string
                 fasta_dict[key] = str(record.seq)
     return fasta_dict
 
