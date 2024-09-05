@@ -46,24 +46,12 @@ for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
 Storing the sacCer2 genome 
 '''
 def load_fasta_files_to_dict(directory):
-    """
-    Load all FASTA files from a directory into a dictionary containing only sequences.
-    
-    Parameters:
-    - directory: The path to the directory containing FASTA files.
-    
-    Returns:
-    - A dictionary where keys are filenames (without extensions) and values are sequences as strings.
-    """
     fasta_dict = {}
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
             filepath = os.path.join(directory, filename)
-            # Read the FASTA file
             for record in SeqIO.parse(filepath, "fasta"):
-                # Use the filename (without extension) as the key
                 key = os.path.splitext(filename)[0]
-                # Store only the sequence as a string
                 fasta_dict[key] = str(record.seq)
     return fasta_dict
 
@@ -250,34 +238,21 @@ def load_model(modelnum: int):
     return keras.models.load_model(f"./adapter-free-Model/C{modelnum}free")
 
 
-def run_model(seqs): #Allows it to take a list of sequences as input
-    #num_seqs = len(seqs) 
-    #seq_length = len(seqs[0])
-    #subseq_length = 50
-    #num_subseqs = seq_length - subseq_length + 1
-    #the variables above enabled checking of functionality 
-    
-    # Initialize an array to accumulate the cyclability values
+def run_model(seqs):
     accumulated_cyclability = []
-    # Extract the model number from the option string
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
-    # Load the model
     model = load_model(modelnum)
     x =1
-    # Process each sequence
     for seq in seqs:
         #A simple counter to keep track of progress
         if x%200 == 0:
             print(x)
         x = x+1
         
-        # Create a list of subsequences of length 50
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
-        # Make predictions using the model
         cNfree = pred(model, list50)
         prediction = list(cNfree)
-        # Accumulate the cyclability values
         accumulated_cyclability.append(prediction)
         
     
@@ -288,13 +263,13 @@ def run_model(seqs): #Allows it to take a list of sequences as input
 Loading Plotting Functions 
 '''
 def plot_cyclability(values, nuc_num, name):
-    x_values = np.linspace(-175, 175, len(values))  # Generate x-values from -175 to 200
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    x_values = np.linspace(-175, 175, len(values))
+    plt.figure(figsize=(12, 6))
     plt.plot(x_values, values, color="blue")
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.title(f'Cyclability Around Nucleosome {nuc_num} {name}')
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200) 
     
     plt.show()
     
@@ -308,14 +283,8 @@ def sliding_window_average(arr, window_size=50):
 def plot_cyclability2000(values1, values2, label1, label2):
     values1 = sliding_window_average(values1)
     values2 = sliding_window_average(values2)
-    
-    # Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-975, 975, len(values1))
-    
-    
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
-    
-    # Plot both sequences with different colors
+    plt.figure(figsize=(12, 6))
     plt.plot(x_values, values1, label=label1, color='blue')
     plt.plot(x_values, values2, label=label2, color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)', fontsize=24, 
@@ -328,7 +297,6 @@ def plot_cyclability2000(values1, values2, label1, label2):
     plt.grid(True, linestyle=':', linewidth=1, alpha=0.5, color='#bdc3c7')
     plt.tick_params(axis='both', which='major', labelsize=16)
     plt.tight_layout()
-    
     plt.show()
 
 
