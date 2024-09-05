@@ -58,14 +58,10 @@ df_flyN = find_nucleosome_centers(df_combined)
 #%%
 '''Fly TSS and TTS?'''
 
-# Define the column names as per GTF format
 column_names = ["chrom", "source", "feature", "Left TS", "Right TS", "score", "strand", "frame", "attribute"]
-
-# Load the GTF file into a DataFrame
 gtf_file = 'dm3.ensGene.gtf'
 df = pd.read_csv(gtf_file, sep='\t', comment='#', names=column_names)
 
-# Filter for transcript features
 transcripts_df = df[df['feature'] == 'transcript']
 
 
@@ -103,11 +99,8 @@ def load_fasta_files_to_dict(directory):
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
             filepath = os.path.join(directory, filename)
-            # Read the FASTA file
             for record in SeqIO.parse(filepath, "fasta"):
-                # Use the filename (without extension) as the key
                 key = os.path.splitext(filename)[0]
-                # Store only the sequence as a string
                 fasta_dict[key] = str(record.seq)
     return fasta_dict
 
@@ -163,11 +156,6 @@ def Nucleosome_N_Seq(Nuc_Number,df, genome):
     Sequences = []
     Char_to_check = "N"
     for i in range(0,len(Position)):
-        # if i%50 == 0:
-        #     print(i)
-        #try:
-        Current_nucleosomes = Position[i]
-        #print(Current_nucleosomes)
         if Current_nucleosomes != "None":
             if len(Current_nucleosomes) >= Nuc_Number:
                 if Direction[i] == "+":
@@ -226,32 +214,23 @@ def load_model(modelnum: int):
     return keras.models.load_model(f"./adapter-free-Model/C{modelnum}free")
 
 
-def run_model(seqs): #Allows it to take a list of sequences as input
-    #num_seqs = len(seqs) 
-    #seq_length = len(seqs[0])
-    #subseq_length = 50
-    #num_subseqs = seq_length - subseq_length + 1
-    #the variables above enabled checking of functionality 
+def run_model(seqs):
+
     
     accumulated_cyclability = []
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
-    # Load the model
+
     model = load_model(modelnum)
     x =1
-    # Process each sequence
+
     for seq in seqs:
-        #A simple counter to keep track of progress
         if x%200 == 0:
             print(x)
         x = x+1
-        
-        # Create a list of subsequences of length 50
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
-        # Make predictions using the model
         cNfree = pred(model, list50)
         prediction = list(cNfree)
-        # Accumulate the cyclability values
         accumulated_cyclability.append(prediction)
         
     
@@ -262,32 +241,31 @@ def run_model(seqs): #Allows it to take a list of sequences as input
 Loading Plotting Functions 
 '''
 def plot_cyclability(values, nuc_num, name):
-    x_values = np.linspace(-175, 175, len(values))  # Generate x-values from -175 to 200
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    x_values = np.linspace(-175, 175, len(values))
+    plt.figure(figsize=(12, 6)) 
     plt.plot(x_values, values, color="blue")
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.title(f'Cyclability Around Nucleosome {nuc_num} {name}')
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200) 
     plt.ylim(-0.26, -0.1)
     
     plt.show()
 
 def plot_cyclability2(values1, values2, title=None):
-    # Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6)) 
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
 
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200)
     plt.ylim(-0.26, -0.1)
-    plt.legend()  # Add a legend
+    plt.legend()
 
     if title is not None:
         plt.title(title)
@@ -346,8 +324,6 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
             print(idx)
         try:
             current_chr = chromosome_id[idx]
-            #current_chr = conversion_dict[current_chr]
-            #print(f"Processing chromosome: {current_chr}")
             
             chromosome = updated_chromosomes.get(current_chr)
             if chromosome is None:
@@ -363,7 +339,6 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                 compliment_Nuclesome = Nucleosome_seq_obj.reverse_complement()
                 Sequence = str(compliment_Nuclesome)
             
-            # Doing the mutation
             mutated_sequence = []
             for j in range(0, len(Sequence), 3):
                 codon = Sequence[j:j+3].upper()
@@ -380,7 +355,6 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                         mutated_sequence.append(codon)
                         continue
 
-                    # If there is more than one codon for the amino acid, select a different one
                     if len(possible_codons) > 1:
                         new_codon = random.choice([c for c in possible_codons if c != codon])
                     else:
@@ -391,12 +365,10 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                     mutated_sequence.append(codon)
 
             mutated_sequence = "".join(mutated_sequence)
-            # Reverse complement if necessary
             if direction[idx] == "-":
                 x = Seq(mutated_sequence)
                 mutated_sequence = str(x.reverse_complement())
             
-            # Building replacement chromosome
             chrome_up = chromosome[:int(gene_left[idx])]
             chrome_down = chromosome[int(gene_right[idx]):]
             updated_chromosome = chrome_up + mutated_sequence + chrome_down
