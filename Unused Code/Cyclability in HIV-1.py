@@ -63,47 +63,32 @@ def load_model(modelnum: int):
     return keras.models.load_model(f"./adapter-free-Model/C{modelnum}free")
 
 
-def run_model(seqs): #Allows it to take a list of sequences as input
-    #num_seqs = len(seqs) 
-    #seq_length = len(seqs[0])
-    #subseq_length = 50
-    #num_subseqs = seq_length - subseq_length + 1
-    #the variables above enabled checking of functionality 
-    
-    # Initialize an array to accumulate the cyclability values
+def run_model(seqs):
     accumulated_cyclability = []
-    # Extract the model number from the option string
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
-    # Load the model
     model = load_model(modelnum)
     x =1
-    # Process each sequence
     for seq in seqs:
-        #A simple counter to keep track of progress
         if x%200 == 0:
             print(x)
         x = x+1
         
-        # Create a list of subsequences of length 50
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
-        # Make predictions using the model
         cNfree = pred(model, list50)
         prediction = list(cNfree)
-        # Accumulate the cyclability values
         accumulated_cyclability.append(prediction)
-        
     
     return accumulated_cyclability
 
 def plot_cyclability1000(values):
     x_values = np.linspace(-975, 975, len(values))  
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6))
     plt.plot(x_values, values)
     plt.xlabel('Distance from TSS (BP)')
     plt.ylabel('Cyclability')
     plt.title('Cyclability Around TSS in HIV-1')
-    plt.xlim(-1000, 1000)  # Set x-axis limits
+    plt.xlim(-1000, 1000) 
     plt.ylim(-0.27, 0)
     plt.show()
     
