@@ -23,24 +23,12 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 Storing the sacCer2 genome 
 '''
 def load_fasta_files_to_dict(directory):
-    """
-    Load all FASTA files from a directory into a dictionary containing only sequences.
-    
-    Parameters:
-    - directory: The path to the directory containing FASTA files.
-    
-    Returns:
-    - A dictionary where keys are filenames (without extensions) and values are sequences as strings.
-    """
     fasta_dict = {}
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
             filepath = os.path.join(directory, filename)
-            # Read the FASTA file
             for record in SeqIO.parse(filepath, "fasta"):
-                # Use the filename (without extension) as the key
                 key = os.path.splitext(filename)[0]
-                # Store only the sequence as a string
                 fasta_dict[key] = str(record.seq)
     return fasta_dict
 
@@ -208,7 +196,7 @@ def run_model(seqs):
         if x%500 == 0:
             print(x)
         x = x+1
-        
+        #collects sequence every 50 base pairs 
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
         cNfree = pred(model, list50)
         prediction = list(cNfree)
@@ -250,7 +238,6 @@ codon_table = {
     'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'
 }
 
-# Create a reverse dictionary mapping amino acids to their codons
 amino_acid_to_codons = {}
 for codon, amino_acid in codon_table.items():
     if amino_acid not in amino_acid_to_codons:
@@ -262,16 +249,13 @@ for codon, amino_acid in codon_table.items():
 
 def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction, 
                   codon_table, amino_acid_to_codons, conversion_dict, seed):
-    # Create a copy of the original dictionary to ensure it is being updated
     updated_chromosomes = chromosomes.copy()
     
     for idx in range(len(gene_left)):
         try:
             current_chr = chromosome_id[idx]
             current_chr = conversion_dict[current_chr]
-            #print(f"Processing chromosome: {current_chr}")
-            
-            # Directly use the current_chr as key since it's now in format 'chrI', 'chrII', etc.
+
             chromosome = updated_chromosomes.get(current_chr)
             if chromosome is None:
                 print(f"Chromosome {current_chr} not found in the genome.")
@@ -285,8 +269,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                 Nucleosome_seq_obj = Seq(gene_seq)
                 compliment_Nuclesome = Nucleosome_seq_obj.reverse_complement()
                 Sequence = str(compliment_Nuclesome)
-            
-            # Doing the mutation
+
             mutated_sequence = []
             for j in range(0, len(Sequence), 3):
                 codon = Sequence[j:j+3]
@@ -318,8 +301,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
             if direction[idx] == "-":
                 x = Seq(mutated_sequence)
                 mutated_sequence = str(x.reverse_complement())
-            
-            # Building replacement chromosome
+
             chrome_up = chromosome[:int(gene_left[idx])]
             chrome_down = chromosome[int(gene_right[idx]):]
             updated_chromosome = chrome_up + mutated_sequence + chrome_down
@@ -536,14 +518,10 @@ Pombe_Chrome = df_TSS["Chrom"]
 Pombe_direction = df_TSS["Strand"]
 
 
-# Initialize an empty dictionary to store chromosomes
 chromosomes = {}
 fasta_file = "GCA_000002945.2_ASM294v2_genomic.fna"
-
-# Define the keys for the first three chromosomes and the mitochondria
 chromosome_keys = ['1', '2', '3', 'mitochondria']
 
-# Parse the FASTA file and store each chromosome sequence in the dictionary
 for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
     if idx < len(chromosome_keys):
         key = chromosome_keys[idx]
