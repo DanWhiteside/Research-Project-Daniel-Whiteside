@@ -222,7 +222,7 @@ def run_model(seqs): #Allows it to take a list of sequences as input
 Loading Plotting Functions 
 '''
 def plot_cyclability(values, nuc_num, name):
-    x_values = np.linspace(-175, 175, len(values))  # Generate x-values from -175 to 200
+    x_values = np.linspace(-175, 175, len(values))
     plt.figure(figsize=(12, 6))  # Create figure with specified size
     plt.plot(x_values, values, color="blue")
     plt.xlabel('Distance from Nucleosome Centre (BP)')
@@ -233,16 +233,16 @@ def plot_cyclability(values, nuc_num, name):
     plt.show()
 
 def plot_cyclability2(values1, values2, title=None):
-    # Generate x-values for both sequences (same for both sequences)
+    #Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
     
-    # Ensure that both sequences have the same length
+    #Ensure that both sequences have the same length
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6)) 
     
-    # Plot both sequences with different colors
+    #Plot both sequences with different colors
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
@@ -251,8 +251,6 @@ def plot_cyclability2(values1, values2, title=None):
     plt.xlim(-200, 200)  # Set x-axis limits
     plt.ylim(-0.27, -0.1)
     plt.legend()  # Add a legend
-
-    # Add title if provided
     if title is not None:
         plt.title(title)
     
