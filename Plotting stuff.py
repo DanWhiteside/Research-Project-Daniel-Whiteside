@@ -248,7 +248,7 @@ distribution_at_position(pombeN5_Raw, 176)
 
 #%%
 '''T test differences between Pombe and Cerevisiae '''
-def U_test_at_position(lists_condition1, lists_condition2, position):
+def T_test_at_position(lists_condition1, lists_condition2, position):
     #Getting values at the specified position
     values1 = [lst[position] for lst in lists_condition1 if position < len(lst)]
     values2 = [lst[position] for lst in lists_condition2 if position < len(lst)]
@@ -256,7 +256,7 @@ def U_test_at_position(lists_condition1, lists_condition2, position):
     values2 = np.array(values2)
     
     #Performing the t-test
-    t_statistic, p_value = stats.mannwhitneyu(values1, values2)
+    t_statistic, p_value = stats.t(values1, values2)
     
     return t_statistic, p_value
 
