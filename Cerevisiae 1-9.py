@@ -184,19 +184,10 @@ def load_model(modelnum: int):
     return keras.models.load_model(f"./adapter-free-Model/C{modelnum}free")
 
 
-def run_model(seqs): #Allows it to take a list of sequences as input
-    #num_seqs = len(seqs) 
-    #seq_length = len(seqs[0])
-    #subseq_length = 50
-    #num_subseqs = seq_length - subseq_length + 1
-    #the variables above enabled checking of functionality 
-    
-    # Initialize an array to accumulate the cyclability values
+def run_model(seqs): 
     accumulated_cyclability = []
-    # Extract the model number from the option string
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
-    # Load the model
     model = load_model(modelnum)
     x =1
     # Process each sequence
@@ -205,16 +196,11 @@ def run_model(seqs): #Allows it to take a list of sequences as input
         if x%200 == 0:
             print(x)
         x = x+1
-        
-        # Create a list of subsequences of length 50
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
-        # Make predictions using the model
+        
         cNfree = pred(model, list50)
         prediction = list(cNfree)
-        # Accumulate the cyclability values
         accumulated_cyclability.append(prediction)
-        
-    
     return accumulated_cyclability
 
 #%%
@@ -223,34 +209,26 @@ Loading Plotting Functions
 '''
 def plot_cyclability(values, nuc_num, name):
     x_values = np.linspace(-175, 175, len(values))
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    plt.figure(figsize=(12, 6)) 
     plt.plot(x_values, values, color="blue")
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.title(f'Cyclability Around Nucleosome {nuc_num} {name}')
-    plt.xlim(-200, 200)  # Set x-axis limits
-    
+    plt.xlim(-200, 200) 
     plt.show()
 
 def plot_cyclability2(values1, values2, title=None):
-    #Generate x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
-    
-    #Ensure that both sequences have the same length
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
-    
     plt.figure(figsize=(12, 6)) 
-    
-    #Plot both sequences with different colors
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
-    # Customize plot
-    plt.xlim(-200, 200)  # Set x-axis limits
+    plt.xlim(-200, 200)  
     plt.ylim(-0.27, -0.1)
-    plt.legend()  # Add a legend
+    plt.legend()  
     if title is not None:
         plt.title(title)
     
@@ -332,8 +310,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                 Nucleosome_seq_obj = Seq(gene_seq)
                 compliment_Nuclesome = Nucleosome_seq_obj.reverse_complement()
                 Sequence = str(compliment_Nuclesome)
-            
-            # Doing the mutation
+
             mutated_sequence = []
             for j in range(0, len(Sequence), 3):
                 codon = Sequence[j:j+3]
@@ -361,12 +338,11 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction,
                     mutated_sequence.append(codon)
 
             mutated_sequence = "".join(mutated_sequence)
-            # Reverse complement if necessary
+            #Reverse compliment when needed
             if direction[idx] == "-":
                 x = Seq(mutated_sequence)
                 mutated_sequence = str(x.reverse_complement())
             
-            # Building replacement chromosome
             chrome_up = chromosome[:int(gene_left[idx])]
             chrome_down = chromosome[int(gene_right[idx]):]
             updated_chromosome = chrome_up + mutated_sequence + chrome_down
