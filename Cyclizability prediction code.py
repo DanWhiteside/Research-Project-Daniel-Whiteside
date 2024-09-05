@@ -49,7 +49,7 @@ def run_model(seqs): #Allows it to take a list of sequences as input
         if x%200 == 0:
             print(x)
         x = x+1
-        #Breaks sequence down into 1-50, 51-100, etc.
+        #Breaks sequence down into 1-50, 2-51, etc.
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
         #Makes Prediction
         cNfree = pred(model, list50)
