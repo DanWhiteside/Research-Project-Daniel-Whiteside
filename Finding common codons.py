@@ -22,24 +22,12 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 Storing the sacCer2 genome 
 '''
 def load_fasta_files_to_dict(directory):
-    """
-    Load all FASTA files from a directory into a dictionary containing only sequences.
-    
-    Parameters:
-    - directory: The path to the directory containing FASTA files.
-    
-    Returns:
-    - A dictionary where keys are filenames (without extensions) and values are sequences as strings.
-    """
     fasta_dict = {}
     for filename in os.listdir(directory):
         if filename.endswith(".fasta") or filename.endswith(".fa"):
             filepath = os.path.join(directory, filename)
-            # Read the FASTA file
             for record in SeqIO.parse(filepath, "fasta"):
-                # Use the filename (without extension) as the key
                 key = os.path.splitext(filename)[0]
-                # Store only the sequence as a string
                 fasta_dict[key] = str(record.seq)
     return fasta_dict
 
@@ -166,7 +154,6 @@ def gene_finder(dataframe, chromosomes, conversion_dict):
 '''
 Codon table 
 '''
-# Define the codon to amino acid mapping
 codon_table = {
     'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 
     'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L', 
@@ -193,7 +180,6 @@ def codon_counter(sequences, codon_table):
     for sequence in sequences:
         if sequence == "None":
             continue
-        # Split sequence into codons
         codons = [sequence[i:i+3] for i in range(0, len(sequence), 3)]
         
         for codon in codons:
@@ -202,7 +188,7 @@ def codon_counter(sequences, codon_table):
                 codon_counts[amino_acid][codon] += 1
                 amino_acid_counts[amino_acid] += 1
     
-    # Calculate percentages
+    #Calculate percentages
     codon_percentages = {}
     for amino_acid, codons in codon_counts.items():
         codon_percentages[amino_acid] = {}
@@ -221,19 +207,15 @@ def codon_counter(sequences, codon_table):
 def heatmaps(nuc_num, amino_abundance):
     df = pd.DataFrame(amino_abundance)
     
-    # Transpose the DataFrame to have positions as rows and amino acids as columns
     df = df.transpose()
     
     # Plot the heatmap
     plt.figure(figsize=(14, 8))
     sns.heatmap(df, cmap="inferno", vmax=20, vmin=0 ,annot=False)
     
-    # Adding labels and title
     plt.xlabel("Position")
     plt.ylabel("Amino Acid")
     plt.title(f"Heatmap of Amino Acid Abundance Across Positions in the plus {nuc_num} Nucleosome of Cerevisiae (%)")
-    
-    # Display the plot
     plt.tight_layout()
     plt.show()
 
@@ -255,21 +237,14 @@ def position_visualisation(amino_abundance):
         
 
 def pallet_plot(nuc_num, data_dict):
-    # Set the color palette
     palette = sns.color_palette("husl", len(data_dict))
-    
-    # Determine the number of rows and columns for the grid
     num_plots = len(data_dict)
     cols = 4  # You can adjust this number to change the grid's shape
     rows = (num_plots + cols - 1) // cols  # Ceiling division to determine rows
-    
-    # Create a smaller figure with subplots
     fig, axes = plt.subplots(rows, cols, figsize=(15, 9))
     
-    # Flatten the axes array for easy iteration
     axes = axes.flatten()
     
-    # Loop through the dictionary and plot each list in a separate subplot
     for idx, (key, value) in enumerate(data_dict.items()):
         # Apply the function to the list
         transformed_data = position_visualisation(value)
@@ -281,103 +256,70 @@ def pallet_plot(nuc_num, data_dict):
         ax.set_xlabel("Position")
         ax.set_ylabel("Abundance (%)")
     
-    # Hide any unused subplots
     for i in range(idx + 1, len(axes)):
         fig.delaxes(axes[i])
-    
-    # Add a super title for the entire grid
     fig.suptitle(f"Positional Abundance of Amino Acids in Cerevisiae plus {nuc_num} Nucleosome", fontsize=14)
     
-    # Adjust layout
     plt.tight_layout()
     plt.subplots_adjust(top=0.9)
     plt.show()
     
 def darken_color(color, factor=0.8):
-    """
-    Darken the given color by the specified factor.
-    
-    Parameters:
-    - color: Input color (can be a name, hex, or RGB tuple).
-    - factor: Amount to darken the color (0 is black, 1 is the original color).
-    
-    Returns:
-    - Darkened color.
-    """
-    # Convert color to RGB format
     rgb = mcolors.to_rgb(color)
-    # Darken the color by scaling the RGB values
     darkened_rgb = [x * factor for x in rgb]
-    # Return the darkened color as a hex string
     return mcolors.to_hex(darkened_rgb)
 
 
 def pallet_plot2(dict1, dict2, organism1, organism2):
-    # Determine the number of rows and columns for the grid
     num_plots = len(dict1)
-    cols = 4  # You can adjust this number to change the grid's shape
-    rows = (num_plots + cols - 1) // cols  # Ceiling division to determine rows
+    cols = 4 
+    rows = (num_plots + cols - 1) // cols 
 
-    # Create a figure with subplots
     fig, axes = plt.subplots(rows, cols, figsize=(15, 11))
 
-    # Flatten the axes array for easy iteration
     axes = axes.flatten()
 
-    # Initialize lists for the global legend
     handles = []
     labels = []
 
-    # Loop through the dictionary and plot each list in a separate subplot
     for idx, (key, value) in enumerate(dict1.items()):
-        # Apply the function to the list
         transformed_data1 = position_visualisation(value)
         transformed_data2 = position_visualisation(dict2[key])
 
-        # Plot the data on the corresponding subplot
         ax = axes[idx]
         line1, = ax.plot(transformed_data1, label=f"{organism1}", linestyle='-', linewidth=2)
         line2, = ax.plot(transformed_data2, linewidth=1, label=f"{organism2}")
 
-        # Set titles and labels for the subplots
         ax.set_title(f"{key}", fontsize=15)
         ax.set_xlabel("Position", fontsize=15)
-        
-        # For the leftmost subplot in each row, keep y-axis labels and numbers
+
         if idx % cols == 0:
             ax.set_ylabel("Abundance (%)", fontsize=12)
             ax.yaxis.set_tick_params(labelsize=10)
         else:
-            # For other subplots, remove y-axis numbers but keep ticks
-            ax.set_ylabel("")
-            ax.yaxis.set_tick_params(labelsize=10)  # Remove labels but keep ticks
 
-        # Add grid lines to match the style of compare_cyclability
+            ax.set_ylabel("")
+            ax.yaxis.set_tick_params(labelsize=10) 
+
         ax.grid(True, linestyle=':', linewidth=1, alpha=0.5, color='#bdc3c7')
 
-        # Collect handles and labels for the global legend
         if idx == 0:
             handles.extend([line1, line2])
             labels.extend([f"{organism1}", f"{organism2}"])
 
-    # Hide any unused subplots
     for i in range(idx + 1, len(axes)):
         fig.delaxes(axes[i])
 
-    # Add a super title for the entire grid
     fig.suptitle("Positional Abundance of Amino Acids in plus 5-9 Nucleosomes", fontsize=14, fontweight='bold')
 
-    # Create a global legend outside the subplots
     fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.01), ncol=2,
                fontsize=10, markerscale=1)
 
-    # Adjust layout
     plt.tight_layout()  # Adjust bottom to make room for the global legend
     plt.show()
 
 def sliding_window_heatmap(dictionary):
     for idx, (key, value) in enumerate(dictionary.items()):
-        # Apply the function to the list
         transformed_data = sliding_window_average(value)
         dictionary[key] = transformed_data
     return dictionary
@@ -388,9 +330,7 @@ def average_Nucleosome(Nucleosomes):
     return average_cyclability
 
 #%%
-# Example usage:
 
-# Assuming `dataframe`, `chromosomes`, and `conversion_dict` are provided
 sequences = gene_finder(df_cerTSS, saccer2_genome, chr_to_roman)
 codon_counts, codon_percentages = codon_counter(sequences, codon_table)
 
@@ -411,7 +351,6 @@ def plot_codon_percentages(codon_percentages):
         plt.tight_layout()
         plt.show()
 
-# Example usage:
 plot_codon_percentages(codon_percentages)
 
 #%%
@@ -425,14 +364,12 @@ df_TSS = pd.read_csv("41594_2010_BFnsmb1741_MOESM9_ESM (COPY).csv")
 df_TSS["Strand"] = df_TSS["Orientation"]
 df_TSS["Chrom"] = df_TSS["Chromosome"]
 
-# Initialize an empty dictionary to store chromosomes
 chromosomes = {}
 fasta_file = "GCA_000002945.2_ASM294v2_genomic.fna"
 
-# Define the keys for the first three chromosomes and the mitochondria
 chromosome_keys = ['1', '2', '3', 'mitochondria']
 
-# Parse the FASTA file and store each chromosome sequence in the dictionary
+
 for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
     if idx < len(chromosome_keys):
         key = chromosome_keys[idx]
