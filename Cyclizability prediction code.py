@@ -35,33 +35,26 @@ def load_model(modelnum: int):
 
 
 def run_model(seqs): #Allows it to take a list of sequences as input
-    #num_seqs = len(seqs) 
-    #seq_length = len(seqs[0])
-    #subseq_length = 50
-    #num_subseqs = seq_length - subseq_length + 1
-    #the variables above enabled checking of functionality 
-    
-    # Initialize an array to accumulate the cyclability values
+    #Combinging the cyclizability of each list item
     accumulated_cyclability = []
-    # Extract the model number from the option string
+    #Getting model number from the option string
     option = "C0free prediction"
     modelnum = int(re.findall(r'\d+', option)[0])
-    # Load the model
+    #Loading model
     model = load_model(modelnum)
     x =1
-    # Process each sequence
+    #Predicting cyclizability for each sequence
     for seq in seqs:
         #A simple counter to keep track of progress
         if x%200 == 0:
             print(x)
         x = x+1
-        
-        # Create a list of subsequences of length 50
+        #Breaks sequence down into 1-50, 51-100, etc.
         list50 = [seq[i:i+50] for i in range(len(seq) - 50 + 1)]
-        # Make predictions using the model
+        #Makes Prediction
         cNfree = pred(model, list50)
         prediction = list(cNfree)
-        # Accumulate the cyclability values
+        #Combined all the cyclizabilities
         accumulated_cyclability.append(prediction)
         
     
@@ -101,14 +94,12 @@ cer_COD_right = list(df_cer["SGD_Right"])
 
 #%%
 
-# Initialize an empty dictionary to store chromosomes
+#DIctionary for pombe chromosomes
 chromosomes = {}
 fasta_file = "GCA_000002945.2_ASM294v2_genomic.fna"
-
-# Define the keys for the first three chromosomes and the mitochondria
 chromosome_keys = ['1', '2', '3', 'mitochondria']
 
-# Parse the FASTA file and store each chromosome sequence in the dictionary
+#Parsing Fasta file 
 for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
     if idx < len(chromosome_keys):
         key = chromosome_keys[idx]
@@ -118,13 +109,11 @@ for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
 
 
 #%%
+'''This code was used to load cerevisiae chromosomes but the genome used has sinced been changed'''
 cer_chromosomes = {}
 cer_fasta_file = "GCF_000146045.2_R64_genomic.fna"
-
-# Define the keys for the first three chromosomes
 cer_chromosome_keys = ['1', '2', '3']
 
-# Parse the FASTA file and store each chromosome sequence in the dictionary
 cer_mitochondria_key = "mitochondria"
 for idx, record in enumerate(SeqIO.parse(cer_fasta_file, "fasta")):
     if cer_mitochondria_key in record.description.lower():
@@ -367,8 +356,8 @@ def Nuc1_sequencerFilter(Nuc_Number, dataframe, chromosomes, left, right):
 The main plotting functions 
 '''
 def plot_cyclability(values, nuc_num, name):
-    x_values = np.linspace(-175, 175, len(values))  # Generate x-values from -175 to 200
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
+    x_values = np.linspace(-175, 175, len(values)) 
+    plt.figure(figsize=(12, 6))  
     plt.plot(x_values, values, color="blue")
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
@@ -378,7 +367,6 @@ def plot_cyclability(values, nuc_num, name):
     plt.show()
 
 def plot_cyclability2(values1, values2, title=None):
-    #Generates x-values for both sequences (same for both sequences)
     x_values = np.linspace(-175, 175, len(values1))
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
@@ -392,9 +380,7 @@ def plot_cyclability2(values1, values2, title=None):
     # Customize plot
     plt.xlim(-200, 200)
     plt.ylim(-0.27, -0.1)
-    plt.legend()  # Add a legend
-
-    # Add title if provided
+    plt.legend()  
     if title is not None:
         plt.title(title)
     
@@ -417,15 +403,14 @@ def plot_cyclability2_1000(values1, values2, title=None):
     if len(values1) != len(values2):
         raise ValueError("Both sequences must have the same length.")
     
-    plt.figure(figsize=(12, 6))  # Create figure with specified size
-    
+    plt.figure(figsize=(12, 6))      
     plt.plot(x_values, values1, label='Natural', color='blue')
     plt.plot(x_values, values2, label='Mutated', color='red')
     plt.xlabel('Distance from Nucleosome Centre (BP)')
     plt.ylabel('Cyclability')
     plt.xlim(-1000, 1000)
     plt.ylim(-0.27, -0.1)
-    plt.legend()  # Add a legend
+    plt.legend()
 
     if title is not None:
         plt.title(title)
@@ -436,8 +421,6 @@ def plot_cyclability2_1000(values1, values2, title=None):
 '''
 Finding the Nucleosomes of all possible genes in Pombe
 '''
-
-#Nucleosome_Positions = Nucleosome_TSS_finder(Left_ORF, Right_ORF, df_nucleosome, TS_chromosome)
 Nucleosome_Positions = Nucleosome_TSS_finder(Left_txn, Right_txn, df_nucleosome, TS_chromosome)
 df_TSS["Nucleosome"] = Nucleosome_Positions
 
@@ -511,7 +494,7 @@ Nuc1_cyc = run_model(Nucleosome1_sequences)
 
 indices_different_length = [i for i, sublist in enumerate(Nuc1_cyc) if len(sublist) != len(Nuc1_cyc[0])]
 
-# Print the indices of sublists with different lengths
+#Checking if sequences are the same length 
 if indices_different_length:
     print("Indices of sublists with different lengths:", indices_different_length)
 else:
@@ -722,7 +705,7 @@ plot_cyclability(cer_NFR)
 '''
 Generating code to silently mutate DNA sequence  
 '''
-# Define the codon to amino acid mapping
+#Dictionary for replacing codons
 codon_table = {
     'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 
     'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L', 
@@ -817,7 +800,7 @@ def mutate_genome(chromosomes, gene_left, gene_right, chromosome_id, direction):
                 
                 
 
-                #Building replacement chromosome
+                #Building replacement chromosome since strings are immuatable 
                 chrome_up = chromosome[:int(gene_left[idx])]
                 chrome_down = chromosome[int(gene_right[idx]):]
                 updated_chromosome = chrome_up + mutated_sequence + chrome_down
@@ -976,19 +959,13 @@ def plot_cyclability_subplot(ax, values1, values2, title=None):
         ax.set_title(title)
 
 #%%
-# Create a figure for the 3x3 grid
 fig, axs = plt.subplots(3, 3, figsize=(15, 15))
-
-# Loop over the 9 pairs and create subplots
 for i in range(9):
     row = i // 3
     col = i % 3
     plot_cyclability_subplot(axs[row, col], pombeNlist[i], pombeMlist[i], title=f"+{i+1} Nucleosome")
     
-# Adjust layout to prevent overlap
 plt.tight_layout()
-
-# Show the figure
 plt.show()
 
 #%%
