@@ -18,8 +18,6 @@ import seaborn as sns
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 #%%
 #POMBE
-#df_nucleosome = pd.read_csv("sd02.csv")
-#df_nucleosome.head
 
 #Importing the relevent data and storing it 
 df_nucleosome = pd.read_csv("sd01.csv")
@@ -38,14 +36,10 @@ TS_directions = list(df_TSS["Orientation"])
 
 #%%
 
-# Initialize an empty dictionary to store chromosomes
+#Initialize an empty dictionary to store chromosomes
 chromosomes = {}
 fasta_file = "GCA_000002945.2_ASM294v2_genomic.fna"
-
-# Define the keys for the first three chromosomes and the mitochondria
 chromosome_keys = ['1', '2', '3', 'mitochondria']
-
-# Parse the FASTA file and store each chromosome sequence in the dictionary
 for idx, record in enumerate(SeqIO.parse(fasta_file, "fasta")):
     if idx < len(chromosome_keys):
         key = chromosome_keys[idx]
@@ -89,7 +83,6 @@ def gene_sequencer(Left, Right, direction, chromosome):
 def Nucleosome_TSS_finder(TSS, TTS, Nucleosome_sites, 
                              chromosome_number):
     position_lists = []
-    #Nucleosome_sites = Nucleosome_sites.loc[Nucleosome_sites["score 1"]>10]
     for i in range(0, len(TSS)):
         lower_threshold = TSS[i]
         upper_threshold = TTS[i]
@@ -283,54 +276,18 @@ def plot_amino_acid_tally(amino_acid_tally):
     plt.tight_layout()
     plt.show()
 
-amino_acid_dict = {
-    "Alanine": "A",
-    "Arginine": "R",
-    "Asparagine": "N",
-    "Aspartic acid": "D",
-    "Cysteine": "C",
-    "Glutamic acid": "E",
-    "Glutamine": "Q",
-    "Glycine": "G",
-    "Histidine": "H",
-    "Isoleucine": "I",
-    "Leucine": "L",
-    "Lysine": "K",
-    "Methionine": "M",
-    "Phenylalanine": "F",
-    "Proline": "P",
-    "Serine": "S",
-    "Threonine": "T",
-    "Tryptophan": "W",
-    "Tyrosine": "Y",
-    "Valine": "V", 
+amino_acid_dict = {"Alanine": "A", "Arginine": "R", "Asparagine": "N", "Aspartic acid": "D",
+                   "Cysteine": "C", "Glutamic acid": "E", "Glutamine": "Q", "Glycine": "G",
+                   "Histidine": "H", "Isoleucine": "I", "Leucine": "L", "Lysine": "K",
+                   "Methionine": "M", "Phenylalanine": "F", "Proline": "P", "Serine": "S",
+                   "Threonine": "T", "Tryptophan": "W", "Tyrosine": "Y", "Valine": "V", 
 }
 
-amino_acids = [
-    "Alanine",
-    "Arginine",
-    "Asparagine",
-    "Aspartic acid",
-    "Cysteine",
-    "Glutamic acid",
-    "Glutamine",
-    "Glycine",
-    "Histidine",
-    "Isoleucine",
-    "Leucine",
-    "Lysine",
-    "Methionine",
-    "Phenylalanine",
-    "Proline",
-    "Serine",
-    "Threonine",
-    "Tryptophan",
-    "Tyrosine",
-    "Valine", 
-]
-
-'''
-First version 
+amino_acids = ["Alanine", "Arginine", "Asparagine", "Aspartic acid",
+               "Cysteine", "Glutamic acid", "Glutamine", "Glycine",
+               "Histidine", "Isoleucine", "Leucine", "Lysine",
+               "Methionine", "Phenylalanine", "Proline", "Serine",
+               "Threonine", "Tryptophan", "Tyrosine", "Valine"]
 
 def amino_by_position(amino_acid, dataframe, amino_acid_dict):
     amino = amino_acid_dict[amino_acid]
@@ -338,54 +295,16 @@ def amino_by_position(amino_acid, dataframe, amino_acid_dict):
     seq = [item for item in seq if item != 'None']
     pos = dataframe["N position on the gene"]
     pos = [item for item in pos if item != 'None']
-    
-    #offsetting the sequences that aren't aligned 
-    padded_seqs = []
-    for i in range(0,len(seq)-1):
-        offset = pos[i]//3
-        padded_seq = "x" * offset + seq[i]
-        padded_seqs.append(padded_seq)
-    
-    print(len(max(padded_seqs)))
-    #finding the thing 
-    # Step 2: Iterate over all sequences
-    sequence_length = 275
-    position_counts = [0] * sequence_length
-    na_counts = [0] * sequence_length
-    for seq in padded_seqs:
-        for i, aa in enumerate(seq):
-            if aa == amino:
-                position_counts[i] += 1
-            if aa == "x":
-                na_counts[i] += 1
-    
-    # Step 3: Calculate abundance percentages
-    total_sequences = len(padded_seqs)
-    abundance_percentages = [(position_counts[i] / (total_sequences - na_counts[i])) * 100 for i in range(0,sequence_length)]
-    return abundance_percentages
-'''
-def amino_by_position(amino_acid, dataframe, amino_acid_dict):
-    amino = amino_acid_dict[amino_acid]
-    seq = dataframe["Nucleosome Amino Acids"]
-    seq = [item for item in seq if item != 'None']
-    pos = dataframe["N position on the gene"]
-    pos = [item for item in pos if item != 'None']
-    
-    # Offset the sequences that aren't aligned 
     padded_seqs = []
     for i in range(len(seq)):
         offset = int(pos[i]) // 3
         padded_seq = "x" * offset + seq[i]
         padded_seqs.append(padded_seq)
-    
-    # Determine the maximum length of sequences for proper alignment
     max_length = len(max(padded_seqs, key=len))
     
-    # Initialize counts for each position
     position_counts = [0] * max_length
     total_counts = [0] * max_length
     
-    # Count the occurrences of the target amino acid and valid sequences at each position
     for seq in padded_seqs:
         for i, aa in enumerate(seq):
             if i < max_length:
@@ -394,21 +313,12 @@ def amino_by_position(amino_acid, dataframe, amino_acid_dict):
                 if aa != 'x':  # Count only valid amino acids
                     total_counts[i] += 1
     
-    # Calculate abundance percentages
-    abundance_percentages = [(position_counts[i] / total_counts[i]) * 100 if total_counts[i] > 0 else 0 for i in range(max_length)]
-    abundance_percentages = abundance_percentages[:133]
-    return abundance_percentages
-
-                
-    
-    # Calculate abundance percentages
     position_counts = position_counts[:133]
     abundance_percentages = [(position_counts[i] / sum(position_counts)) * 100 for i in range(0,133)]
     return abundance_percentages
 
 def count_all_amino(dataframe, amino_acid_dict, amino_list):
     amino_acid_abundances = {}
-    # Loop through each amino acid and calculate its abundance
     for amino in amino_list:
         abundance = amino_by_position(amino, dataframe, amino_acid_dict)  # Use the first letter of each amino acid
         amino_acid_abundances[amino] = abundance
@@ -416,13 +326,9 @@ def count_all_amino(dataframe, amino_acid_dict, amino_list):
 
 
 def sum_abundances(amino_acid_abundances):
-    # Find the length of sequences (assuming all have the same length)
     sequence_length = len(next(iter(amino_acid_abundances.values())))
-    
-    # Initialize a list of zeros to store the sum of abundances at each position
     summed_abundances = [0] * sequence_length
     
-    # Loop through each amino acid's abundance
     for amino_acid, abundances in amino_acid_abundances.items():
         for i in range(sequence_length):
             summed_abundances[i] += abundances[i]
@@ -430,7 +336,7 @@ def sum_abundances(amino_acid_abundances):
     return summed_abundances
 
 def count_all_by_nucleosome(nuc_num, dataframe, amino_acid_dict, amino_list, chromosomes):
-    Nucleosome_TS = NucX_sequencer(nuc_num, dataframe, chromosomes)  #edit this to change the target nucleosome
+    Nucleosome_TS = NucX_sequencer(nuc_num, dataframe, chromosomes)
     dataframe["Nucleosome Sequences"] = Nucleosome_TS
 
     Gene_Sequences = gene_finder(dataframe, chromosomes)
@@ -447,19 +353,15 @@ def count_all_by_nucleosome(nuc_num, dataframe, amino_acid_dict, amino_list, chr
 def heatmaps(nuc_num, amino_abundance):
     df = pd.DataFrame(amino_abundance)
     
-    # Transpose the DataFrame to have positions as rows and amino acids as columns
     df = df.transpose()
     
-    # Plot the heatmap
     plt.figure(figsize=(14, 8))
     sns.heatmap(df, cmap="inferno", vmax=20, vmin=0 ,annot=False)
     
-    # Adding labels and title
     plt.xlabel("Position")
     plt.ylabel("Amino Acid")
     plt.title(f"Heatmap of Amino Acid Abundance Across Positions in the plus {nuc_num} Nucleosome of Pombe (%)")
     
-    # Display the plot
     plt.tight_layout()
     plt.show()
 
@@ -480,42 +382,28 @@ def position_visualisation(amino_abundance):
     print(sum(positional_prevalence))
     return positional_prevalence
         
-
+#Plotting all the aminos of one species
 def pallet_plot(nuc_num, data_dict):
-    # Set the color palette
     palette = sns.color_palette("husl", len(data_dict))
-    
-    # Determine the number of rows and columns for the grid
     num_plots = len(data_dict)
-    cols = 4  # You can adjust this number to change the grid's shape
+    cols = 4  
     rows = (num_plots + cols - 1) // cols  # Ceiling division to determine rows
-    
-    # Create a smaller figure with subplots
     fig, axes = plt.subplots(rows, cols, figsize=(15, 9))
-    
-    # Flatten the axes array for easy iteration
     axes = axes.flatten()
-    
-    # Loop through the dictionary and plot each list in a separate subplot
     for idx, (key, value) in enumerate(data_dict.items()):
-        # Apply the function to the list
         transformed_data = position_visualisation(value)
-        
-        # Plot the data on the corresponding subplot
+
         ax = axes[idx]
         ax.plot(transformed_data, color=palette[idx])
         ax.set_title(f"{key}")
         ax.set_xlabel("Position")
         ax.set_ylabel("Abundance (%)")
     
-    # Hide any unused subplots
     for i in range(idx + 1, len(axes)):
         fig.delaxes(axes[i])
     
-    # Add a super title for the entire grid
     fig.suptitle(f"Positional Abundance of Amino Acids in Pombe plus {nuc_num} Nucleosome", fontsize=14)
     
-    # Adjust layout
     plt.tight_layout()
     plt.subplots_adjust(top=0.9)
     plt.show()
@@ -633,16 +521,10 @@ plus9_aminos = count_all_by_nucleosome(9, df_TSS, amino_acid_dict, amino_acids, 
 #%%
 pombeN5to9 = [plus5_aminos, plus6_aminos, plus7_aminos, plus8_aminos, plus9_aminos]
 
-# Initialize the result dictionary
 Average_amino = {}
 
-# Iterate over each key in the dictionaries
 for key in plus5_aminos.keys():
-    # Use zip to aggregate the values across all dictionaries for each key
-    # For example: key 'a' -> zip([1, 2, 3], [2, 3, 4], [3, 4, 5], [4, 5, 6], [5, 6, 7])
     aggregated_values = zip(*(d[key] for d in pombeN5to9))
-    
-    # Calculate the average for each position and store it in the result dictionary
     Average_amino[key] = [sum(values) / len(values) for values in aggregated_values]
 
 #%%
